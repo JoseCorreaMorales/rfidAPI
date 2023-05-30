@@ -3,13 +3,17 @@
 require_once "connection.php";
 require_once "jwt.php";
 
+$json = file_get_contents("php://input");
+$data = json_decode($json);
+$_REQUEST = (array)$data;
 if(isset($_REQUEST['user']) && isset($_REQUEST['pass'])){
     $u = $_REQUEST['user'];
     $p = $_REQUEST['pass'];
     $c = connection();
     $s = $c->prepare("SELECT user,role FROM users WHERE user=:u AND pass=:p");
+    //$s = $c->prepare("SELECT username FROM users WHERE username=:u AND password=:p");
     $s->bindValue(":u", $u);
-    $s->bindValue(":p", md5($p));
+    $s->bindValue(":p", $p);
     $s->execute();
     $s->setFetchMode(PDO::FETCH_ASSOC);
     $r = $s->fetch();

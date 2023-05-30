@@ -11,6 +11,11 @@ if(JWT::verify($jwt, "3kH4ZjD6Rt9qPvY2XyAe7Sg1u8oL5mNc")){
 }
 $metodo = $_SERVER["REQUEST_METHOD"];
 
+
+$json = file_get_contents("php://input");
+$data = json_decode($json);
+$_REQUEST = (array)$data;
+
 switch($metodo){
     case "GET":
         //Consulta
@@ -33,15 +38,15 @@ switch($metodo){
         break;
     case "POST":
         //Insertar
-        if(!isset($_POST['type']) || !isset($_POST['value'])){
+        if(!isset($_REQUEST['type']) || !isset($_REQUEST['value'])){
             header("HTTP/1.1 400 Bad Request");
             return;
         }
         $c = connection();
         $s = $c->prepare("INSERT INTO sensors(user,type,value,date) VALUES(:u, :t, :v, :d)");
         $s->bindValue(":u", "admin");
-        $s->bindValue(":t", $_POST['type']);
-        $s->bindValue(":v", $_POST['value']);
+        $s->bindValue(":t", $_REQUEST['type']);
+        $s->bindValue(":v", $_REQUEST['value']);
         $s->bindValue(":d", date("Y-m-d H:i:s"));
         $s->execute();
         // if($s->rowCount()==0){
